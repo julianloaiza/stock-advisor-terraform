@@ -23,6 +23,7 @@ provider "aws" {
     ecs       = "http://localhost:4566"
     elasticloadbalancing = "http://localhost:4566"
     ec2       = "http://localhost:4566"
+    ssm       = "http://localhost:4566"
   }
 }
 
@@ -32,12 +33,6 @@ resource "aws_ssm_parameter" "database_url" {
   type  = "SecureString"
   value = var.database_connection_string
 }
-
-# Output para verificar la creación (no mostrará el valor por ser sensitivo)
-output "database_param_name" {
-  value = aws_ssm_parameter.database_url.name
-}
-
 module "backend" {
   source       = "./modules/backend"
   environment  = var.environment
