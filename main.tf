@@ -43,3 +43,23 @@ module "backend" {
   environment  = var.environment
   database_url = var.database_connection_string
 }
+
+output "database_param_name" {
+  value = aws_ssm_parameter.database_url.name
+  description = "Nombre del parámetro SSM que contiene la URL de la base de datos"
+}
+
+output "environment" {
+  value = var.environment
+  description = "Entorno actual de despliegue"
+}
+
+output "backend_module_enabled" {
+  value = module.backend.module_enabled
+  description = "Indica si el módulo de backend está habilitado"
+}
+
+output "database_region" {
+  value = "us-west-2"
+  description = "Región donde se encuentra la base de datos CockroachDB"
+}
