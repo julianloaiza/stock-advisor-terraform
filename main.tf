@@ -26,14 +26,20 @@ provider "aws" {
   }
 }
 
-# Variables
-variable "environment" {
-  description = "Deployment environment"
-  default     = "dev"
+# Guardar información de la base de datos en SSM Parameter Store simulado en LocalStack
+resource "aws_ssm_parameter" "database_url" {
+  name  = "/${var.environment}/database/url"
+  type  = "SecureString"
+  value = var.database_connection_string
 }
 
-# Módulos - se activarán en fases posteriores
-# module "database" {
-#   source = "./modules/database"
-#   environment = var.environment
-# }
+# Output para verificar la creación (no mostrará el valor por ser sensitivo)
+output "database_param_name" {
+  value = aws_ssm_parameter.database_url.name
+}
+
+module "backend" {
+  source       = "./modules/backend"
+  environment  = var.environment
+  database_url = var.database_connection_string
+}
