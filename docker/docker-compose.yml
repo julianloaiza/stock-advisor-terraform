@@ -1,0 +1,81 @@
+# ==========================================================
+# docker-compose.yml para Stock Advisor (simulación híbrida)
+# ==========================================================
+# Este archivo configura los servicios necesarios para ejecutar el stack completo
+# usando la base de datos CockroachDB Serverless y simulando backend y frontend
+# con integración con parámetros de LocalStack
+
+version: '3.8'
+
+services:
+  # ==========================================================
+  # BACKEND: API de Stock Advisor
+  # ==========================================================
+  backend:
+    # Construye la imagen desde el Dockerfile en la carpeta del backend
+    build:
+      context: ../repositories/stock-advisor-backend
+      dockerfile: Dockerfile
+    container_name: stock-advisor-backend
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"  # Expone la API en el puerto 8080
+    environment:
+      # Variables de entorno para configurar el backend
+      - ADDRESS=:8080
+      # Las siguientes variables se sobreescriben en el script start.sh que obtiene los valores del SSM de LocalStack
+      - DATABASE_URL=${DATABASE_URL:-postgresql://usuario:contraseña@host:puerto/basedatos?sslmode=disable}
+      - STOCK_API_URL=${STOCK_API_URL:-https://8j5baasof2.execute-api.us-west-2.amazonaws.com/production/swechallenge/list}
+      - STOCK_AUTH_TKN=${STOCK_AUTH_TKN:-demo_token}
+      - SYNC_MAX_ITERATIONS=${SYNC_MAX_ITERATIONS:-100}
+      - SYNC_TIMEOUT=${SYNC_TIMEOUT:-60}
+      # Orígenes permitidos para CORS (importante para comunicación con frontend)
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://frontend:5173,http://127.0.0.1:5173}
+    networks:
+      - stock-network
+    # Montar archivo de configuración de recomendaciones si existe
+    volumes:
+      - ${RECOMMENDATION_FACTORS_PATH:-../repositories/stock-advisor-backend/recommendation_factors.json}:/app/recommendation_factors.json
+    restart: on-failure
+    # Healthcheck para garantizar que la API está lista
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/swagger/index.html"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ==========================================================
+  # FRONTEND: Interfaz web de Stock Advisor
+  # ==========================================================
+  frontend:
+    # Construye la imagen desde el Dockerfile en la carpeta del frontend
+    build:
+      context: ../repositories/stock-advisor-frontend
+      dockerfile: Dockerfile
+      args:
+        # Pasar la URL de la API como argumento durante la construcción
+        # Esto se sobreescribe en el script start.sh con valores de LocalStack
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:${BACKEND_PORT:-8080}}
+        - VITE_DEFAULT_LANGUAGE=${VITE_DEFAULT_LANGUAGE:-EN}
+    container_name: stock-advisor-frontend
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"  # Expone la UI en el puerto 5173
+    environment:
+      # Variables de entorno para el frontend (runtime)
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:${BACKEND_PORT:-8080}}
+      - VITE_DEFAULT_LANGUAGE=${VITE_DEFAULT_LANGUAGE:-EN}
+    depends_on:
+      # Solo inicia cuando el backend está disponible
+      backend:
+        condition: service_healthy
+    networks:
+      - stock-network
+    restart: on-failure
+
+# ==========================================================
+# REDES
+# ==========================================================
+networks:
+  # Red para comunicación entre contenedores
+  stock-network:
+    driver: bridge
