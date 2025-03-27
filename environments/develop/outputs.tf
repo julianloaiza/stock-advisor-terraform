@@ -15,10 +15,15 @@ output "project" {
   value       = var.project
 }
 
-# Propaga todos los outputs del módulo database con un prefijo
 output "database" {
   description = "All database module outputs"
   value = {
     for key, value in module.database : key => value
+  }
+}
+output "networking" {
+  description = "All networking module outputs"
+  value = {
+    for key, value in module.networking : key => value
   }
 }
