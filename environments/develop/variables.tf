@@ -29,3 +29,11 @@ variable "project" {
   type        = string
   default     = "stock-advisor"
 }
+
+# Database variables
+variable "cockroach_connection_string" {
+  description = "CockroachDB connection string"
+  type        = string
+  sensitive   = true
+  # No default value for security reasons
+}

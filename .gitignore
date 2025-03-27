@@ -22,3 +22,9 @@ terraform.rc
 
 # Ignore LocalStack temporary files
 volume/
+
+# Ignore everything in the certs folder
+certs/
+
+# Ignore all .pem files
+*.pem

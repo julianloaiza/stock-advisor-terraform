@@ -17,4 +17,17 @@ provider "aws" {
   secret_key = var.aws_secret_key
 }
 
-# Por ahora no incluimos módulos, los agregaremos incrementalmente
+locals {
+  cockroach_ca_cert = file("${path.module}/certs/ca_cert.pem")
+}
+
+
+# Módulo de base de datos para gestionar la conexión a CockroachDB
+module "database" {
+  source = "../../modules/database"
+
+  environment                 = var.environment
+  project                     = var.project
+  cockroach_connection_string = var.cockroach_connection_string
+  cockroach_ca_cert           = local.cockroach_ca_cert
+}
