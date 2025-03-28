@@ -136,10 +136,10 @@ resource "aws_iam_role" "backend_task" {
   tags = var.tags
 }
 
-# Política para permitir que el backend lea credenciales de SSM
-resource "aws_iam_policy" "backend_ssm_access" {
-  name        = "${local.name_prefix}-backend-ssm-access"
-  description = "Allow backend to access database credentials from SSM Parameter Store"
+# Política para permitir que el rol de ejecución de tareas lea credenciales de SSM
+resource "aws_iam_policy" "ecs_task_execution_ssm_access" {
+  name        = "${local.name_prefix}-ecs-task-execution-ssm-access"
+  description = "Allow ECS task execution role to access database credentials from SSM Parameter Store"
   policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [{
@@ -150,8 +150,8 @@ resource "aws_iam_policy" "backend_ssm_access" {
   })
 }
 
-# Adjuntar la política SSM al rol de backend
-resource "aws_iam_role_policy_attachment" "backend_ssm_access" {
-  role       = aws_iam_role.backend_task.name
-  policy_arn = aws_iam_policy.backend_ssm_access.arn
+# Adjuntar la política SSM al rol de ejecución de tareas
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_ssm_access" {
+  role       = aws_iam_role.ecs_task_execution.name
+  policy_arn = aws_iam_policy.ecs_task_execution_ssm_access.arn
 }
