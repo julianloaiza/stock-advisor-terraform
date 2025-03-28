@@ -2,6 +2,9 @@
 
 Este repositorio contiene la configuración de infraestructura como código (IaC) para el proyecto **Stock Advisor**, desplegado en AWS utilizando **Terraform**. El objetivo principal es alojar tanto el backend (API en Go) como el frontend (aplicación Vue.js) de manera segura y escalable. Además, se aprovechan servicios de AWS como ECS Fargate, ALB, S3 y Parameter Store para gestionar la conexión a una base de datos externa (CockroachDB).
 
+![Diagrama de Arquitectura](diagram.png)
+
+Este diagrama ilustra la arquitectura de alto nivel del proyecto **Stock Advisor**, mostrando la integración de servicios de AWS como ECS Fargate, ALB, S3 y Parameter Store con una base de datos externa CockroachDB.
 ---
 
 ### Estructura de Directorios
