@@ -52,3 +52,14 @@ module "networking" {
 
   tags = local.common_tags
 }
+
+# Módulo de seguridad para crear grupos de seguridad y roles IAM
+module "security" {
+  source = "../../modules/security"
+
+  environment = var.environment
+  project     = var.project
+  vpc_id      = module.networking.vpc_id
+
+  tags = local.common_tags
+}

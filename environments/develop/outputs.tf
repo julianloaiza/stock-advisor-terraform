@@ -27,3 +27,9 @@ output "networking" {
     for key, value in module.networking : key => value
   }
 }
+output "security" {
+  description = "All security module outputs"
+  value = {
+    for key, value in module.security : key => value
+  }
+}
