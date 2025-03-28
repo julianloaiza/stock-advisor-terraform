@@ -9,8 +9,14 @@ output "vpc_cidr_block" {
 }
 
 output "public_subnet_id" {
-  description = "ID of the public subnet"
+  description = "ID of the primary public subnet"
   value       = aws_subnet.public.id
+}
+
+# NUEVO: la segunda subnet pública
+output "public_subnet_id_2" {
+  description = "ID of the secondary public subnet for ALB"
+  value       = aws_subnet.public2.id
 }
 
 output "private_subnet_id" {
@@ -39,6 +45,6 @@ output "private_route_table_id" {
 }
 
 output "availability_zone" {
-  description = "Availability zone used"
+  description = "Availability zone used for the main subnets"
   value       = var.availability_zone
 }

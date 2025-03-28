@@ -63,3 +63,30 @@ module "security" {
 
   tags = local.common_tags
 }
+
+# Módulo Backend
+module "backend" {
+  source = "../../modules/backend"
+
+  environment                    = var.environment
+  project                        = var.project
+  aws_region                     = var.aws_region
+  ecr_repository_url             = module.backend.ecr_repository_url
+  ecs_task_execution_role_arn    = module.security.ecs_task_execution_role_arn
+  backend_task_role_arn          = module.security.backend_task_role_arn
+  database_connection_string_arn = module.database.connection_string_param_arn
+  task_cpu                       = 256
+  task_memory                    = 512
+
+  alb_security_group_id = module.security.alb_security_group_id
+  public_subnet_id      = module.networking.public_subnet_id
+  public_subnet_id_2    = module.networking.public_subnet_id_2
+  vpc_id                = module.networking.vpc_id
+
+  private_subnet_id         = module.networking.private_subnet_id
+  backend_security_group_id = module.security.backend_security_group_id
+  target_group_arn          = module.backend.target_group_arn
+  desired_count             = 1
+
+  tags = local.common_tags
+}

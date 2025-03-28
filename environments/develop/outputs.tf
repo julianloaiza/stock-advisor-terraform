@@ -33,3 +33,9 @@ output "security" {
     for key, value in module.security : key => value
   }
 }
+output "backend" {
+  description = "All backend module outputs"
+  value = {
+    for key, value in module.backend : key => value
+  }
+}

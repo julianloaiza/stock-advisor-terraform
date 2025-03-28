@@ -1,27 +1,13 @@
-/**
- * Simplified network setup for Stock Advisor application
- * Just one public subnet for frontend/ALB and one private subnet for backend
- */
-
-locals {
-  common_tags = merge(
-    {
-      Environment = var.environment
-      Project     = var.project
-      ManagedBy   = "terraform"
-    },
-    var.tags
-  )
-}
-
+# ---------------------------------------------------------------------------
 # VPC
+# ---------------------------------------------------------------------------
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
 
   tags = merge(
-    local.common_tags,
+    var.tags,
     {
       Name = "${var.project}-${var.environment}-vpc"
     }
@@ -33,14 +19,16 @@ resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
   tags = merge(
-    local.common_tags,
+    var.tags,
     {
       Name = "${var.project}-${var.environment}-igw"
     }
   )
 }
 
-# Public Subnet (for ALB and public services)
+# ---------------------------------------------------------------------------
+# PUBLIC SUBNET PRINCIPAL
+# ---------------------------------------------------------------------------
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = var.public_subnet_cidr
@@ -48,7 +36,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = merge(
-    local.common_tags,
+    var.tags,
     {
       Name = "${var.project}-${var.environment}-public-subnet"
       Tier = "public"
@@ -56,14 +44,32 @@ resource "aws_subnet" "public" {
   )
 }
 
-# Private Subnet (for backend services)
+# ---------------------------------------------------------------------------
+# NUEVA PUBLIC SUBNET (SECUNDARIA para ALB) 
+# ---------------------------------------------------------------------------
+resource "aws_subnet" "public2" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnet_cidr2
+  availability_zone       = var.availability_zone2
+  map_public_ip_on_launch = true
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.project}-${var.environment}-public-subnet-2"
+      Tier = "public"
+    }
+  )
+}
+
+# PRIVATE SUBNET (para backend)
 resource "aws_subnet" "private" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.private_subnet_cidr
   availability_zone = var.availability_zone
-  
+
   tags = merge(
-    local.common_tags,
+    var.tags,
     {
       Name = "${var.project}-${var.environment}-private-subnet"
       Tier = "private"
@@ -71,35 +77,46 @@ resource "aws_subnet" "private" {
   )
 }
 
-# Public Route Table
+# ---------------------------------------------------------------------------
+# PUBLIC ROUTE TABLE
+# ---------------------------------------------------------------------------
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
   tags = merge(
-    local.common_tags,
+    var.tags,
     {
       Name = "${var.project}-${var.environment}-public-rtb"
     }
   )
 }
 
-# Route to Internet Gateway for public subnet
+# Route to Internet Gateway for public subnets
 resource "aws_route" "public_internet_gateway" {
   route_table_id         = aws_route_table.public.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.main.id
 }
 
-# Associate public subnet with the public route table
+# Asociación con la public subnet principal
 resource "aws_route_table_association" "public" {
   subnet_id      = aws_subnet.public.id
   route_table_id = aws_route_table.public.id
 }
 
-# NAT Gateway for private subnet
+# ASOCIACIÓN con la SUBNET PUBLICA 2
+resource "aws_route_table_association" "public2" {
+  subnet_id      = aws_subnet.public2.id
+  route_table_id = aws_route_table.public.id
+}
+
+# ---------------------------------------------------------------------------
+# NAT GATEWAY (solo en la subnet pública principal)
+# ---------------------------------------------------------------------------
 resource "aws_eip" "nat" {
+  vpc = true
   tags = merge(
-    local.common_tags,
+    var.tags,
     {
       Name = "${var.project}-${var.environment}-nat-eip"
     }
@@ -108,10 +125,10 @@ resource "aws_eip" "nat" {
 
 resource "aws_nat_gateway" "main" {
   allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public.id
+  subnet_id     = aws_subnet.public.id   # <--- la de siempre
 
   tags = merge(
-    local.common_tags,
+    var.tags,
     {
       Name = "${var.project}-${var.environment}-nat-gw"
     }
@@ -120,12 +137,14 @@ resource "aws_nat_gateway" "main" {
   depends_on = [aws_internet_gateway.main]
 }
 
-# Private Route Table
+# ---------------------------------------------------------------------------
+# PRIVATE ROUTE TABLE
+# ---------------------------------------------------------------------------
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
   tags = merge(
-    local.common_tags,
+    var.tags,
     {
       Name = "${var.project}-${var.environment}-private-rtb"
     }

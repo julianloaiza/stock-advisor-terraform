@@ -1,9 +1,10 @@
-# environments/develop/variables.tf
-
+#######################################################################
+# Credenciales e información general
+#######################################################################
 variable "aws_region" {
   description = "AWS region to deploy resources"
   type        = string
-  default     = "us-west-2" # Coincide con la región de CockroachDB
+  default     = "us-west-2"
 }
 
 variable "aws_access_key" {
@@ -30,15 +31,19 @@ variable "project" {
   default     = "stock-advisor"
 }
 
+#######################################################################
 # Database variables
+#######################################################################
 variable "cockroach_connection_string" {
   description = "CockroachDB connection string"
   type        = string
   sensitive   = true
-  # No default value for security reasons
+  # sin default para obligar a definirlo en un tfvars o manualmente
 }
 
-# Networking variables
+#######################################################################
+# Networking variables (manteniendo la esencia)
+#######################################################################
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
   type        = string
@@ -46,13 +51,13 @@ variable "vpc_cidr" {
 }
 
 variable "availability_zone" {
-  description = "Availability zone to use"
+  description = "Primary Availability zone"
   type        = string
   default     = "us-west-2a"
 }
 
 variable "public_subnet_cidr" {
-  description = "CIDR block for the public subnet"
+  description = "CIDR block for the primary public subnet"
   type        = string
   default     = "10.0.1.0/24"
 }
@@ -61,4 +66,25 @@ variable "private_subnet_cidr" {
   description = "CIDR block for the private subnet"
   type        = string
   default     = "10.0.2.0/24"
+}
+
+variable "availability_zone2" {
+  description = "Secondary AZ for the second public subnet (needed by ALB)"
+  type        = string
+  default     = "us-west-2b"
+}
+
+variable "public_subnet_cidr2" {
+  description = "CIDR block for the secondary public subnet"
+  type        = string
+  default     = "10.0.3.0/24"
+}
+
+#######################################################################
+# Tagging general
+#######################################################################
+variable "tags" {
+  description = "Additional tags for all resources"
+  type        = map(string)
+  default     = {}
 }
