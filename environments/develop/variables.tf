@@ -41,6 +41,37 @@ variable "cockroach_connection_string" {
   # sin default para obligar a definirlo en un tfvars o manualmente
 }
 
+# In environments/develop/variables.tf
+variable "stock_api_url" {
+  description = "Stock API URL for external data"
+  type        = string
+  default     = "https://8j5baasof2.execute-api.us-west-2.amazonaws.com/production/swechallenge/list"
+}
+
+variable "stock_auth_tkn" {
+  description = "Authentication token for Stock API"
+  type        = string
+  sensitive   = true
+}
+
+variable "sync_max_iterations" {
+  description = "Maximum number of iterations for stock synchronization"
+  type        = number
+  default     = 100
+}
+
+variable "sync_timeout" {
+  description = "Timeout in seconds for stock synchronization"
+  type        = number
+  default     = 60
+}
+
+variable "cors_allowed_origins" {
+  description = "Allowed origins for CORS"
+  type        = string
+  default     = "*"
+}
+
 #######################################################################
 # Networking variables (manteniendo la esencia)
 #######################################################################

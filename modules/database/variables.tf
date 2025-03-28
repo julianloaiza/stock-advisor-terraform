@@ -20,3 +20,14 @@ variable "cockroach_ca_cert" {
   sensitive   = true
   default     = ""
 }
+
+variable "stock_api_url" {
+  description = "Stock API URL for external data"
+  type        = string
+}
+
+variable "stock_auth_tkn" {
+  description = "Authentication token for Stock API"
+  type        = string
+  sensitive   = true
+}

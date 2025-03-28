@@ -139,13 +139,16 @@ resource "aws_iam_role" "backend_task" {
 # Política para permitir que el rol de ejecución de tareas lea credenciales de SSM
 resource "aws_iam_policy" "ecs_task_execution_ssm_access" {
   name        = "${local.name_prefix}-ecs-task-execution-ssm-access"
-  description = "Allow ECS task execution role to access database credentials from SSM Parameter Store"
+  description = "Allow ECS task execution role to access credentials from SSM Parameter Store"
   policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [{
       Action   = [ "ssm:GetParameters", "ssm:GetParameter" ]
       Effect   = "Allow"
-      Resource = "arn:aws:ssm:*:*:parameter/${var.project}/${var.environment}/database/*"
+      Resource = [
+        "arn:aws:ssm:*:*:parameter/${var.project}/${var.environment}/database/*",
+        "arn:aws:ssm:*:*:parameter/${var.project}/${var.environment}/api/*"
+      ]
     }]
   })
 }

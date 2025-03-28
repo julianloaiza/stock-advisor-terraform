@@ -86,8 +86,37 @@ variable "desired_count" {
   default     = 1
 }
 
+variable "stock_api_url_arn" {
+  description = "ARN of the SSM parameter containing the Stock API URL"
+  type        = string
+}
+
+variable "stock_auth_tkn_arn" {
+  description = "ARN of the SSM parameter containing the Stock API Auth Token"
+  type        = string
+}
+
+variable "sync_max_iterations" {
+  description = "Maximum number of iterations for stock synchronization"
+  type        = number
+  default     = 100
+}
+
+variable "sync_timeout" {
+  description = "Timeout in seconds for stock synchronization"
+  type        = number
+  default     = 60
+}
+
+variable "cors_allowed_origins" {
+  description = "Allowed origins for CORS"
+  type        = string
+  default     = "*"
+}
+
 variable "tags" {
   description = "Additional tags for resources"
   type        = map(string)
   default     = {}
 }
+

@@ -25,6 +25,22 @@ resource "aws_ecs_task_definition" "backend" {
         {
           name  = "ENV"
           value = var.environment
+        },
+        {
+          name  = "ADDRESS"
+          value = ":8080"
+        },
+        {
+          name  = "SYNC_MAX_ITERATIONS"
+          value = tostring(var.sync_max_iterations)
+        },
+        {
+          name  = "SYNC_TIMEOUT"
+          value = tostring(var.sync_timeout)
+        },
+        {
+          name  = "CORS_ALLOWED_ORIGINS"
+          value = var.cors_allowed_origins
         }
       ]
       
@@ -32,6 +48,14 @@ resource "aws_ecs_task_definition" "backend" {
         {
           name      = "DATABASE_URL"
           valueFrom = var.database_connection_string_arn
+        },
+        {
+          name      = "STOCK_API_URL"
+          valueFrom = var.stock_api_url_arn
+        },
+        {
+          name      = "STOCK_AUTH_TKN"
+          valueFrom = var.stock_auth_tkn_arn
         }
       ]
       
