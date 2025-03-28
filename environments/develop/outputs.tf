@@ -39,3 +39,9 @@ output "backend" {
     for key, value in module.backend : key => value
   }
 }
+output "frontend" {
+  description = "All frontend module outputs"
+  value = {
+    for key, value in module.frontend : key => value
+  }
+}

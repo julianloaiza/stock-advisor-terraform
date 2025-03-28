@@ -95,3 +95,12 @@ module "backend" {
 
   tags = local.common_tags
 }
+
+
+# Módulo Frontend
+module "frontend" {
+  source = "../../modules/frontend"
+
+  environment = var.environment
+  project     = var.project
+}
