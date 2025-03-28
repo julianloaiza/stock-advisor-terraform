@@ -69,7 +69,7 @@ variable "sync_timeout" {
 variable "cors_allowed_origins" {
   description = "Allowed origins for CORS"
   type        = string
-  default     = "*"
+  default     = "https://d2k1i8144e20y0.cloudfront.net"
 }
 
 #######################################################################
