@@ -1,18 +1,27 @@
+# ============================================================================
+# BACKEND MODULE - TASK DEFINITION
+# ============================================================================
+# Este archivo define la tarea ECS que ejecutará el contenedor de la
+# aplicación backend, incluyendo recursos, variables de entorno y configuración.
+# ============================================================================
+
 resource "aws_ecs_task_definition" "backend" {
   family                   = "${var.project}-${var.environment}-backend"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = var.task_cpu
-  memory                   = var.task_memory
-  execution_role_arn       = var.ecs_task_execution_role_arn
-  task_role_arn            = var.backend_task_role_arn
+  network_mode             = "awsvpc"                        # Requerido para Fargate
+  requires_compatibilities = ["FARGATE"]                    # Usar Fargate (serverless)
+  cpu                      = var.task_cpu                    # Unidades de CPU (1024 = 1 vCPU)
+  memory                   = var.task_memory                 # Memoria en MB
+  execution_role_arn       = var.ecs_task_execution_role_arn # Rol para iniciar tareas
+  task_role_arn            = var.backend_task_role_arn       # Rol para la aplicación
 
+  # Definición de contenedores (en formato JSON)
   container_definitions = jsonencode([
     {
       name      = "${var.project}-${var.environment}-backend"
-      image     = "${var.ecr_repository_url}:latest"
-      essential = true
+      image     = "${var.ecr_repository_url}:latest"         # Imagen del contenedor
+      essential = true                                       # Si falla, la tarea falla
       
+      # Mapeo de puertos (contenedor:host)
       portMappings = [
         {
           containerPort = 8080
@@ -21,6 +30,7 @@ resource "aws_ecs_task_definition" "backend" {
         }
       ]
       
+      # Variables de entorno públicas
       environment = [
         {
           name  = "ENV"
@@ -44,6 +54,7 @@ resource "aws_ecs_task_definition" "backend" {
         }
       ]
       
+      # Variables de entorno sensibles (desde SSM Parameter Store)
       secrets = [
         {
           name      = "DATABASE_URL"
@@ -59,6 +70,7 @@ resource "aws_ecs_task_definition" "backend" {
         }
       ]
       
+      # Configuración de logs
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -68,12 +80,13 @@ resource "aws_ecs_task_definition" "backend" {
         }
       }
       
+      # Verificación de salud del contenedor
       healthCheck = {
         command     = ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
         interval    = 30
         timeout     = 5
         retries     = 3
-        startPeriod = 60
+        startPeriod = 60  # Tiempo para inicialización
       }
     }
   ])

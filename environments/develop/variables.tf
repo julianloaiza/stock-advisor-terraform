@@ -1,6 +1,7 @@
-#######################################################################
-# Credenciales e información general
-#######################################################################
+###############################################################################
+# Variables Generales y de Credenciales
+###############################################################################
+
 variable "aws_region" {
   description = "AWS region to deploy resources"
   type        = string
@@ -31,17 +32,18 @@ variable "project" {
   default     = "stock-advisor"
 }
 
-#######################################################################
-# Database variables
-#######################################################################
+###############################################################################
+# Variables para el Módulo Database
+###############################################################################
+
 variable "cockroach_connection_string" {
   description = "CockroachDB connection string"
   type        = string
   sensitive   = true
-  # sin default para obligar a definirlo en un tfvars o manualmente
+  # Sin default para obligar a definirlo en un tfvars o manualmente
 }
 
-# In environments/develop/variables.tf
+# En environments/develop/variables.tf
 variable "stock_api_url" {
   description = "Stock API URL for external data"
   type        = string
@@ -72,9 +74,10 @@ variable "cors_allowed_origins" {
   default     = "*"
 }
 
-#######################################################################
-# Networking variables (manteniendo la esencia)
-#######################################################################
+###############################################################################
+# Variables para el Módulo Networking
+###############################################################################
+
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
   type        = string
@@ -111,9 +114,10 @@ variable "public_subnet_cidr2" {
   default     = "10.0.3.0/24"
 }
 
-#######################################################################
-# Tagging general
-#######################################################################
+###############################################################################
+# Variables de Tagging
+###############################################################################
+
 variable "tags" {
   description = "Additional tags for all resources"
   type        = map(string)
